@@ -9,27 +9,39 @@ using Microsoft.Bot.Builder.FormFlow;
 
 namespace CSharpGetInputFromUsers.Dialogs
 {
+    [Serializable]
     public class CSharpKeywordsDialog : IDialog<object>
     {
+        
         public Task StartAsync(IDialogContext context)
         {
-            context.Wait(MessageReceivedAsync);
+            context.PostAsync("hey it's time to learn new CSharp Keyword");
+            var keywordForm = FormDialog.FromForm(this.buildKeywordForm, FormOptions.PromptInStart);
 
+            context.Call(keywordForm, this.ResumeAfterKeywordDialog);
             return Task.CompletedTask;
         }
 
-        private Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
+        private async Task ResumeAfterKeywordDialog(IDialogContext context, IAwaitable<CSharpKeyword> result)
         {
-            throw new NotImplementedException();
+            context.PostAsync($"You just added this info {result}");
+            context.Done(result);
         }
-        public static IDialog<CSharpKeyword> Keyword()
+
+        private IForm<CSharpKeyword> buildKeywordForm()
         {
-            return Chain.From(() => FormDialog.FromForm(BuildForm));
-        }
-        private static IForm<CSharpKeyword> BuildForm()
-        {
+            OnCompletionAsyncDelegate<CSharpKeyword> processHotelsSearch = async (context, state) =>
+            {
+                await context.PostAsync($"Ok. you have added {state.KeywordName}  {state.Definition}");
+            };
+
             return new FormBuilder<CSharpKeyword>()
-                    .Build();
+                .Field(nameof(CSharpKeyword.KeywordName))
+                .Message("Let me know more about {KeywordName}...")
+                .AddRemainingFields()
+                .OnCompletion(processHotelsSearch)
+                .Build();
         }
+
     }
 }

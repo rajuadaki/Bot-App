@@ -19,18 +19,8 @@ namespace CSharpGetInputFromUsers
         {
             if (activity.Type == ActivityTypes.Message)
             {
-                if (activity.Text.ToLower() == "C# Keywords".ToLower())
-                {
-                    await Conversation.SendAsync(activity, Dialogs.CSharpKeywordsDialog.Keyword);
-                }
-                else if (activity.Text.ToLower() == "C# Concepts".ToLower())
-                {
-                    await Conversation.SendAsync(activity, Dialogs.CSharpConceptsDialog.Concept);
-                }
-                else
-                {
-                    await Conversation.SendAsync(activity, Dialogs.DataToBeAddedDialog.TypeOfData);
-                }
+                
+               await Conversation.SendAsync(activity,()=> new Dialogs.DataToBeAddedDialog());
             }
             else
             {

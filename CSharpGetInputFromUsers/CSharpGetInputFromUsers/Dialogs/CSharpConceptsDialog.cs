@@ -13,23 +13,32 @@ namespace CSharpGetInputFromUsers.Dialogs
     {
         public Task StartAsync(IDialogContext context)
         {
-            context.Wait(MessageReceivedAsync);
+            context.PostAsync("hey it's time to learn new CSharp Concept");
+            var keywordForm = FormDialog.FromForm(this.buildConceptForm, FormOptions.PromptInStart);
 
+            context.Call(keywordForm, this.ResumeAfterConceptDialog);
             return Task.CompletedTask;
         }
 
-        private Task MessageReceivedAsync(IDialogContext context, IAwaitable<object> result)
+        private async Task ResumeAfterConceptDialog(IDialogContext context, IAwaitable<CSharpConcepts> result)
         {
-            throw new NotImplementedException();
+            context.PostAsync($"You just added this info {result}");
+            context.Done(result);
         }
-        public static IDialog<CSharpConcepts> Concept()
+
+        private IForm<CSharpConcepts> buildConceptForm()
         {
-            return Chain.From(() => FormDialog.FromForm(BuildForm));
-        }
-        private static IForm<CSharpConcepts> BuildForm()
-        {
+            OnCompletionAsyncDelegate<CSharpConcepts> processCSharpConcepts = async (context, state) =>
+            {
+                await context.PostAsync($"Ok. you have added {state.ConceptName}  {state.Explanation}");
+            };
+
             return new FormBuilder<CSharpConcepts>()
-                    .Build();
+                .Field(nameof(CSharpConcepts.ConceptName))
+                .Message("Let me know more about {KeywordName}...")
+                .AddRemainingFields()
+                .OnCompletion(processCSharpConcepts)
+                .Build();
         }
     }
 }

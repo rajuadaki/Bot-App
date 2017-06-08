@@ -10,8 +10,6 @@ namespace CSharpGetInputFromUsers.Models
     public class Data
     {
         public DataType TypeOfData;
-        public CSharpConcepts Concept;
-        public CSharpKeyword Keyword;
     }
 
     public enum DataType
